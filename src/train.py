@@ -7,7 +7,7 @@ from sklearn.metrics import precision_recall_fscore_support
 import tensorflow as tf
 from tensorflow import keras
 from sklearn.metrics import classification_report
-from neural_network import MLP, optimizer, loss_and_grad
+from ann import NeuralNetwork as MLP, loss_and_grad MLP, optimizer
 
 
 def load_data(data_s):
