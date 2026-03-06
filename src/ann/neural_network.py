@@ -9,7 +9,7 @@ def softmax(logits):
 
 def loss_and_grad(logits, y_oh, loss_name):
     prob = softmax(logits)
-    if loss_name == 'cce':
+    if loss_name == 'cce' or 'cross_entropy':
         prob = np.clip(prob, 1e-15, 1 - 1e-15)
         loss = -np.mean(np.sum(y_oh * np.log(prob), axis=1))
         dloss = prob - y_oh
