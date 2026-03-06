@@ -9,10 +9,10 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow import keras
 import argparse
-from ann import MLP, loss_and_grad
+from neural_network import MLP, loss_and_grad
 
 
-def parse_args():
+def parse_arguments():
     p = argparse.ArgumentParser()
     p.add_argument('-d', '--dataset', choices=['mnist', 'fashion_mnist'], required=True)
     p.add_argument('-e', '--epochs', type=int, required=True)
@@ -39,8 +39,8 @@ def load_test_data(data_s):
     return x_te, y_te
 
 # Test inference + Report
-def inference_metrics(args):
-   
+def load_model(args):
+    wandb.init(project = args.wandb_project)
     with open (args.save_config) as f:
       cfg = json.load(f)
 
@@ -48,6 +48,9 @@ def inference_metrics(args):
     model_loaded = MLP(cfg['Layers_dim'][0],cfg['Layers_dim'][1:-1],cfg['Layers_dim'][-1], activation = cfg['activation'], w_init = cfg['weight_init'])
     model_loaded.load(args.save_model)  
     test_logits = model_loaded.forward(x_te)
+    return model_loaded, test_logits, x_te,y_te
+
+def evaluate_model(args,test_logits,y_te): 
     test_pred = np.argmax(test_logits,axis=1)
     test_true = np.argmax(y_te,axis=1)
     test_acc = float(np.mean(test_pred==test_true))
@@ -77,8 +80,9 @@ wandb.finish()
 
 
 def main():
-    args = parse_args()
-    inference_metrics(args)
+    args = parse_arguments()
+    _, test_logits,_,y_te = load_model(args)
+    evaluate_model(args,test_logits,y_te)
 
 if __name__ == '__main__':
   main()
