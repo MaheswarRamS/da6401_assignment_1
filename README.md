@@ -49,18 +49,19 @@ python train.py  -d  mnist -e 20  -b 64  -l cce -o momentum -lr 0.001 -nhl 3 -sz
 ---
 
 Training Arguments:
-Argument 	    Flag 	 Choices	                          Description
-Dataset	      -d	    mnist, fashion_mnist	             Dataset to use
-Epochs	       -e	    int	                              Number of training epochs
-Batch Size	   -b	    int	                              Mini-batch size
-Loss	         -l    	mse, cce	                         Loss function
-Optimizer	    -o	    sgd, momentum, nag, rmsprop	      Optimizer type
-Learning Rate	-lr	   float	                            Learning rate
-Num Layers   	-nhl	  int	                              Number of hidden layers
-Hidden Size	  -sz	   int(s)	                           Hidden layer sizes (one or many)
-Activation	   -a	    sigmoid, tanh, relu	              Activation function
-Weight Init	  -wi	   random, xavier, zero              Weight initialization strategy
-WandB Project	-wp	   str	                              WandB project name (default: DA6401-Assignment1)
+| Argument | Flag | Choices | Description |
+|---|---|---|---|
+| Dataset | `-d` | `mnist`, `fashion_mnist` | Dataset to use |
+| Epochs | `-e` | int | Number of training epochs |
+| Batch Size | `-b` | int | Mini-batch size |
+| Loss | `-l` | `mse`, `cce` | Loss function |
+| Optimizer | `-o` | `sgd`, `momentum`, `nag`, `rmsprop` | Optimizer type |
+| Learning Rate | `-lr` | float | Learning rate |
+| Num Layers | `-nhl` | int | Number of hidden layers |
+| Hidden Size | `-sz` | int(s) | Hidden layer sizes (one or many) |
+| Activation | `-a` | `sigmoid`, `tanh`, `relu` | Activation function |
+| Weight Init | `-wi` | `random`, `xavier`, `zero` | Weight initialization strategy |
+| WandB Project | `-wp` | str | WandB project name (default: `DA6401-Assignment1`) |
 
 
 
