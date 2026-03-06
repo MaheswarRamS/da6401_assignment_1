@@ -12,22 +12,23 @@ import argparse
 from neural_network import MLP, loss_and_grad
 
 
-def parse_arguments():
+def parse_arguments(args=None):   
     p = argparse.ArgumentParser()
     p.add_argument('-d', '--dataset', choices=['mnist', 'fashion_mnist'], required=True)
     p.add_argument('-e', '--epochs', type=int, required=True)
     p.add_argument('-b', '--batch_size', type=int, required=True)
-    p.add_argument('-l', '--loss', choices=['mse', 'cce'], required=True)
+    p.add_argument('-l', '--loss', choices=['mse', 'cce', 'cross_entropy'], required=True)
     p.add_argument('-o', '--optimizer', choices=['sgd', 'momentum', 'nag', 'rmsprop'], required=True)
     p.add_argument('-lr', '--learning_rate', type=float, required=True)
     p.add_argument('-nhl', '--num_layers', type=int, required=True)
-    p.add_argument('-sz', '--hidden_size', type=int, nargs="+", required=True)  
+    p.add_argument('-sz', '--hidden_size', type=int, nargs="+", required=True)
     p.add_argument('-a', '--activation', choices=['sigmoid', 'tanh', 'relu'], required=True)
     p.add_argument('-wi', '--weight_init', choices=['random', 'xavier', 'zero'], required=True)
-    p.add_argument('-wp','--wandb_project', type=str, default='DA6401-Assignment1')
+    p.add_argument('-wp', '--wandb_project', type=str, default='DA6401-Assignment1')
     p.add_argument('--save_model', type=str, default='best_model.npy')
     p.add_argument('--save_config', type=str, default='best_config.json')
-    return p.parse_args()
+    return p.parse_args(args)    
+
 
 def load_test_data(data_s):  
     if data_s == 'mnist':
