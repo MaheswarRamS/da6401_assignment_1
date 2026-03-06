@@ -74,6 +74,9 @@ The evaluation can be done on the test MNIST dataset using the following example
 python inference.py -d fashion_mnist -e 20 -b 64 -l cce -o momentum -lr 0.001 -nhl 3 -sz 128 -a relu -wi xavier -wp DA6401-Assignment1
 
 
+Wandb_report
+https://wandb.ai/bt25d030-indian-institute-of-technology-madras/DA6401_Assignment1_sweep/reports/DA6401_Assignment_1--VmlldzoxNjExNDU4Mg
+
 
 
 
