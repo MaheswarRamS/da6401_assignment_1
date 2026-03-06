@@ -1,6 +1,6 @@
 import numpy as np
 import wandb
-from neural_network import MLP, optimizer, load_data, loss_and_grad
+from ann import MLP, optimizer, load_data, loss_and_grad
 
 sweep_config = {
                  "method" : "bayes",
