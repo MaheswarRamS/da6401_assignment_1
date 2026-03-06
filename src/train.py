@@ -30,7 +30,7 @@ def parse_arguments():
     p.add_argument('-d', '--dataset', choices=['mnist', 'fashion_mnist'], required=True)
     p.add_argument('-e', '--epochs', type=int, required=True)
     p.add_argument('-b', '--batch_size', type=int, required=True)
-    p.add_argument('-l', '--loss', choices=['mse', 'cce'], required=True)
+    p.add_argument('-l', '--loss', choices=['mse', 'cce','cross_etropy'], required=True)
     p.add_argument('-o', '--optimizer', choices=['sgd', 'momentum', 'nag', 'rmsprop'], required=True)
     p.add_argument('-lr', '--learning_rate', type=float, required=True)
     p.add_argument('-nhl', '--num_layers', type=int, required=True)
