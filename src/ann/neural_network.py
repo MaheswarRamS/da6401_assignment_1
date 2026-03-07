@@ -73,20 +73,11 @@ class dense:
 
 
 class _GradResult:
-    """
-    Return value of backward(logits, y).
-
-    Satisfies:
-      loss, grads = model.backward(logits, y)   # 2-tuple unpack
-      for w_grad, b_grad in grads:              # iterate (w,b) pairs
-    """
     def __init__(self, loss, grad_tuples):
         self._loss = float(loss)
-        self._grads = list(grad_tuples)   # [(w0,b0), (w1,b1), ...]
+        self._grads = list(grad_tuples)  
 
     def __iter__(self):
-        # Yields exactly 2 items: loss scalar, then list of (w,b) tuples
-        # Satisfies: loss, grads = model.backward(logits, y)
         yield self._loss
         yield self._grads
 
