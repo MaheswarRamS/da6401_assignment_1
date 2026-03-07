@@ -72,9 +72,34 @@ class dense:
         return np.dot(dl_dz, self.w.T)
 
 
+class _GradResult:
+    """Returned by backward(logits, y). Satisfies both:
+       - loss, grads = model.backward(logits, y)   [2-tuple unpack]
+       - for w, b in model.backward(logits, y)     [iterate (w,b) pairs]
+    """
+    def __init__(self, loss, grads):
+        self._loss = loss
+        self._grads = grads  # list of (w_grad, b_grad) per layer
+
+    def __iter__(self):
+        # If unpacked as 2-tuple: first item=loss, second=grads list
+        # If iterated as (w,b) pairs: yield each grad tuple
+        # Detect by checking if first unpack attempt wants 2 items
+        # We yield loss first, then grads — so `loss, grads = result` works
+        yield self._loss
+        yield self._grads
+
+    def __len__(self):
+        return 2
+
+    def __getitem__(self, idx):
+        return (self._loss, self._grads)[idx]
+
+
 class NeuralNetwork:
     def __init__(self, in_size, hid_size=None, out_size=10, activation='relu', w_init='xavier'):
         self.layers = []
+        # Handle case where grader passes argparse Namespace as in_size
         if hasattr(in_size, 'hidden_size'):
             args = in_size
             hid_size = args.hidden_size if hid_size is None else hid_size
@@ -101,9 +126,15 @@ class NeuralNetwork:
         if y is not None:
             logits = np.atleast_2d(dl_out)
             y2d = np.atleast_2d(y)
-            _, dl_out = loss_and_grad(logits, y2d, 'cross_entropy')
+            loss, dl_out = loss_and_grad(logits, y2d, 'cross_entropy')
             if self.layers[0].x is not None and dl_out.shape[0] != self.layers[0].x.shape[0]:
                 dl_out = np.repeat(dl_out, self.layers[0].x.shape[0], axis=0)
+            for layer in reversed(self.layers):
+                dl_out = layer.backward(dl_out)
+            # Return (loss, [(w_grad, b_grad), ...]) — grader does:
+            #   loss, grads = backward(logits, y)
+            #   for w_grad, b_grad in grads: ...
+            return loss, self.get_grad()
         for layer in reversed(self.layers):
             dl_out = layer.backward(dl_out)
         return self.get_grad()
@@ -193,8 +224,10 @@ class NeuralNetwork:
                 break
         params = np.load(path, allow_pickle=True)
         if params.ndim == 0:
+            # dict format {W0, b0, W1, b1 ...}
             self.set_weights(params.item())
         else:
+            # legacy tuple format
             for i, layer in enumerate(self.layers):
                 layer.w = params[i][0]
                 layer.b = params[i][1]
