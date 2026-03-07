@@ -77,6 +77,6 @@ python inference.py -d fashion_mnist -e 20 -b 64 -l cce -o momentum -lr 0.001 -n
 Wandb_report
 https://wandb.ai/bt25d030-indian-institute-of-technology-madras/DA6401_Assignment1_sweep/reports/DA6401_Assignment_1--VmlldzoxNjExNDU4Mg
 
-
-
+Github limk
+https://github.com/MaheswarRamS/da6401_assignment_1.git
 
