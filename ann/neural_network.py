@@ -176,7 +176,6 @@ class NeuralNetwork:
             layer.w = params[i][0]
             layer.b = params[i][1]
 
-# alias for Neural_network
 MLP = NeuralNetwork
 
 
