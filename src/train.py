@@ -1,35 +1,29 @@
 import sys, os
 sys.path.insert(0, "/autograder/source")
 sys.path.insert(0, "/autograder/source/src")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import numpy as np
 import argparse
 import wandb
 import json
+from keras.datasets import mnist, fashion_mnist
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_recall_fscore_support, classification_report
-from sklearn.datasets import fetch_openml
 from ann.neural_network import NeuralNetwork as MLP, loss_and_grad, optimizer
 
 
 def load_data(data_s):
     if data_s == 'mnist':
-        dataset = fetch_openml('mnist_784', version=1, as_frame=False, parser='liac-arff')
+        (x_train, y_train), (x_test, y_test) = mnist.load_data()
     else:
-        dataset = fetch_openml('Fashion-MNIST', version=1, as_frame=False, parser='liac-arff')
-
-    X = dataset.data.astype('float32') / 255.0
-    y = dataset.target.astype(int)
-
-    # Standard MNIST split: 60000 train / 10000 test
-    x_train_full, x_test = X[:60000], X[60000:]
-    y_train_full, y_test = y[:60000], y[60000:]
-
-    y_train_full = np.eye(10)[y_train_full]
-    y_test = np.eye(10)[y_test]
-
+        (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
+    x_train = x_train.reshape(-1, 784).astype('float32') / 255
+    x_test  = x_test.reshape(-1, 784).astype('float32') / 255
+    y_train = np.eye(10)[y_train]
+    y_test  = np.eye(10)[y_test]
     x_train, x_val, y_train, y_val = train_test_split(
-        x_train_full, y_train_full, test_size=0.1, random_state=42
+        x_train, y_train, test_size=0.1, random_state=42
     )
     return x_train, y_train, x_val, y_val, x_test, y_test
 
@@ -39,7 +33,7 @@ def parse_arguments():
     p.add_argument('-d', '--dataset', choices=['mnist', 'fashion_mnist'], required=True)
     p.add_argument('-e', '--epochs', type=int, required=True)
     p.add_argument('-b', '--batch_size', type=int, required=True)
-    p.add_argument('-l', '--loss', choices=['mse', 'cce', 'cross_entropy'], required=True)  # FIX: was 'cross_etropy'
+    p.add_argument('-l', '--loss', choices=['mse', 'cce', 'cross_entropy'], required=True)
     p.add_argument('-o', '--optimizer', choices=['sgd', 'momentum', 'nag', 'rmsprop'], required=True)
     p.add_argument('-lr', '--learning_rate', type=float, required=True)
     p.add_argument('-nhl', '--num_layers', type=int, required=True)
@@ -103,7 +97,6 @@ def train(args):
         val_loss, _ = loss_and_grad(val_logits, y_val, args.loss)
         prec, rec, f1, _ = precision_recall_fscore_support(val_true, val_pred, average='weighted', zero_division=0)
 
-        # Dead neuron check
         _ = model.forward(x_val[:1000])
         total_dead = 0
         dead_log = {}
