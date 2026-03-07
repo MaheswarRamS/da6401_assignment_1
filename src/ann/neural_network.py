@@ -101,12 +101,9 @@ class NeuralNetwork:
         if y is not None:
             logits = np.atleast_2d(dl_out)
             y2d = np.atleast_2d(y)
-            loss, dl_out = loss_and_grad(logits, y2d, 'cross_entropy')
+            _, dl_out = loss_and_grad(logits, y2d, 'cross_entropy')
             if self.layers[0].x is not None and dl_out.shape[0] != self.layers[0].x.shape[0]:
                 dl_out = np.repeat(dl_out, self.layers[0].x.shape[0], axis=0)
-            for layer in reversed(self.layers):
-                dl_out = layer.backward(dl_out)
-            return loss, self.get_grad()
         for layer in reversed(self.layers):
             dl_out = layer.backward(dl_out)
         return self.get_grad()
