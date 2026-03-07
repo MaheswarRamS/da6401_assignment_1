@@ -75,7 +75,6 @@ class dense:
 class NeuralNetwork:
     def __init__(self, in_size, hid_size=None, out_size=10, activation='relu', w_init='xavier'):
         self.layers = []
-        # Handle case where grader passes argparse Namespace as in_size
         if hasattr(in_size, 'hidden_size'):
             args = in_size
             hid_size = args.hidden_size if hid_size is None else hid_size
