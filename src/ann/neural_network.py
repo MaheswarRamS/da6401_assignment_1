@@ -180,19 +180,15 @@ class NeuralNetwork:
                 layer.b = weight_dict[f"b{i}"].copy()
 
     def save(self, path='best_model.npy'):
-        weights = self.get_weights()
-        np.save(path, weights, allow_pickle=True)
-        return weights
+        params = [(layer.w, layer.b) for layer in self.layers]
+        np.save(path, np.array(params, dtype=object), allow_pickle=True)
+        return params
 
     def load(self, path):
         params = np.load(path, allow_pickle=True)
-        if params.ndim == 0:
-            d = params.item()
-            self.set_weights(d)
-        else:
-            for i, layer in enumerate(self.layers):
-                layer.w = params[i][0]
-                layer.b = params[i][1]
+        for i, layer in enumerate(self.layers):
+            layer.w = params[i][0]
+            layer.b = params[i][1]
 
 # alias for Neural_network
 MLP = NeuralNetwork
