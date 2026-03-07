@@ -9,7 +9,8 @@ from sklearn.model_selection import train_test_split
 import tensorflow as tf
 from tensorflow import keras
 import argparse
-from ann import NeuralNetwork as MLP, loss_and_grad
+from ann.neural_network import NeuralNetwork as MLP, loss_and_grad, optimizer
+
 
 
 def parse_arguments(args=None):   
