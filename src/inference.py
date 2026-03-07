@@ -32,9 +32,9 @@ def parse_arguments(args=None):
 
 def load_test_data(data_s):
     if data_s == 'mnist':
-        dataset = fetch_openml('mnist_784', version=1, as_frame=False, parser='auto')
+        dataset = fetch_openml('mnist_784', version=1, as_frame=False, parser='liac-arff')
     else:
-        dataset = fetch_openml('Fashion-MNIST', version=1, as_frame=False, parser='auto')
+        dataset = fetch_openml('Fashion-MNIST', version=1, as_frame=False, parser='liac-arff')
 
     X = dataset.data.astype('float32') / 255.0
     y = dataset.target.astype(int)
