@@ -13,7 +13,7 @@ from ann.neural_network import NeuralNetwork as MLP, loss_and_grad, optimizer
 
 
 
-def parse_arguments(args=None):   
+def parse_arguments(args=None):
     p = argparse.ArgumentParser()
     p.add_argument('-d', '--dataset', choices=['mnist', 'fashion_mnist'], required=True)
     p.add_argument('-e', '--epochs', type=int, required=True)
@@ -28,8 +28,7 @@ def parse_arguments(args=None):
     p.add_argument('-wp', '--wandb_project', type=str, default='DA6401-Assignment1')
     p.add_argument('--save_model', type=str, default='best_model.npy')
     p.add_argument('--save_config', type=str, default='best_config.json')
-    return p.parse_args(args)    
-
+    return p.parse_args(args)
 
 def load_test_data(data_s):  
     if data_s == 'mnist':
