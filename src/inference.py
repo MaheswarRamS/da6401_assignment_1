@@ -30,10 +30,25 @@ def parse_arguments(args=None):
     p.add_argument('--save_config', type=str, default='best_config.json')
     def _load_from_config():
         import json, os
-        for config_path in ['/autograder/source/best_config.json', 'best_config.json']:
+        candidates = [
+            '/autograder/source/src/best_config.json',
+            '/autograder/source/best_config.json',
+            'src/best_config.json',
+            'best_config.json',
+        ]
+        for config_path in candidates:
             if os.path.exists(config_path):
                 with open(config_path) as f:
                     cfg = json.load(f)
+                cfg_dir = os.path.dirname(os.path.abspath(config_path))
+                save_model = cfg.get('save_model', 'best_model.npy')
+                if not os.path.isabs(save_model):
+                    for mp in [os.path.join('/autograder/source', save_model),
+                                os.path.join(cfg_dir, os.path.basename(save_model)),
+                                save_model]:
+                        if os.path.exists(mp):
+                            save_model = mp
+                            break
                 return argparse.Namespace(
                     dataset=cfg.get('dataset', 'mnist'),
                     epochs=cfg.get('epochs', 20),
@@ -46,15 +61,13 @@ def parse_arguments(args=None):
                     activation=cfg.get('activation', 'relu'),
                     weight_init=cfg.get('weight_init', 'xavier'),
                     wandb_project=cfg.get('wandb_project', 'DA6401-Assignment1'),
-                    save_model=cfg.get('save_model', 'best_model.npy'),
-                    save_config=cfg.get('save_config', 'best_config.json'),
+                    save_model=save_model,
+                    save_config=config_path,
                 )
         return None
 
     if args is not None:
         return p.parse_args(args)
-
-    # Called with no explicit args - try sys.argv, fall back to best_config.json
     try:
         return p.parse_args()
     except SystemExit:
