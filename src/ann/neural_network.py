@@ -73,19 +73,28 @@ class dense:
 
 
 class _GradResult:
-    def __init__(self, loss, grads):
-        self._loss = loss
-        self._grads = grads  
-
+    def __init__(self, loss, grad_tuples):
+        self._loss = float(loss)
+        self._grads = list(grad_tuples)   
+        
     def __iter__(self):
-        yield self._loss
-        yield self._grads
+        return iter(self._grads)
 
     def __len__(self):
-        return 2
+        return len(self._grads)
 
     def __getitem__(self, idx):
-        return (self._loss, self._grads)[idx]
+        return self._grads[idx]
+
+    @property
+    def loss(self):
+        return self._loss
+
+    def __float__(self):
+        return self._loss
+
+    def __repr__(self):
+        return f"_GradResult(loss={self._loss:.4f}, layers={len(self._grads)})"
 
 
 class NeuralNetwork:
@@ -122,7 +131,7 @@ class NeuralNetwork:
                 dl_out = np.repeat(dl_out, self.layers[0].x.shape[0], axis=0)
             for layer in reversed(self.layers):
                 dl_out = layer.backward(dl_out)
-            return loss, self.get_grad()
+            return _GradResult(loss, self.get_grad())
         for layer in reversed(self.layers):
             dl_out = layer.backward(dl_out)
         return self.get_grad()
@@ -212,10 +221,8 @@ class NeuralNetwork:
                 break
         params = np.load(path, allow_pickle=True)
         if params.ndim == 0:
-            # dict format {W0, b0, W1, b1 ...}
             self.set_weights(params.item())
         else:
-            # legacy tuple format
             for i, layer in enumerate(self.layers):
                 layer.w = params[i][0]
                 layer.b = params[i][1]
