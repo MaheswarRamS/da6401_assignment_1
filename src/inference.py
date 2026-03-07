@@ -8,7 +8,8 @@ import argparse
 import json
 import wandb
 import matplotlib.pyplot as plt
-from keras.datasets import mnist, fashion_mnist
+import tensorflow as tf
+from tensorflow import keras
 from sklearn.metrics import classification_report, confusion_matrix, precision_recall_fscore_support
 from ann.neural_network import NeuralNetwork as MLP, loss_and_grad, optimizer
 
@@ -33,9 +34,9 @@ def parse_arguments(args=None):
 
 def load_test_data(data_s):
     if data_s == 'mnist':
-        (_, _), (x_test, y_test) = mnist.load_data()
+        (_, _), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
     else:
-        (_, _), (x_test, y_test) = fashion_mnist.load_data()
+        (_, _), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
     x_te = x_test.reshape(-1, 784).astype('float32') / 255
     y_te = np.eye(10)[y_test]
     return x_te, y_te
