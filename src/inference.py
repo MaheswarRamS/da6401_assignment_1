@@ -28,7 +28,10 @@ def parse_arguments(args=None):
     p.add_argument('-wp', '--wandb_project', type=str, default='DA6401-Assignment1')
     p.add_argument('--save_model', type=str, default='best_model.npy')
     p.add_argument('--save_config', type=str, default='best_config.json')
-    return p.parse_args(args)
+    try:
+        return p.parse_args(args)
+    except SystemExit:
+        return None
 
 
 def load_test_data(data_s):
