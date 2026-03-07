@@ -90,7 +90,7 @@ def train(args):
         if iteration < 50:
             layer1_wgrad = model.layers[0].w_grad
             neuron_log = {}
-            for i in range(5):
+            for i in range(min(5, layer1_wgrad.shape[1])):
                 neuron_log[f'neuron_{i}_grad'] = float(np.linalg.norm(layer1_wgrad[:, i]))
             wandb.log({'iteration': iteration, **neuron_log})
         iteration += 1
