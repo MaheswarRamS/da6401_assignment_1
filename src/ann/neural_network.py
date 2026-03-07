@@ -62,10 +62,8 @@ class dense:
         self.z = np.dot(x, self.w) + self.b
         self.a = self.act(self.z)
         return self.a
-
-    # Define backward method to calculate gradients and store it
+        
     def backward(self, dl_out):
-        # Calculate the derivatives for the activation function
         dl_dz = dl_out * self.act_grad(self.z)
         self.w_grad = np.dot(self.x.T, dl_dz) / self.x.shape[0]
         self.b_grad = np.sum(dl_dz, axis=0, keepdims=True) / self.x.shape[0]
@@ -98,7 +96,6 @@ class _GradResult:
 class NeuralNetwork:
     def __init__(self, in_size, hid_size=None, out_size=10, activation='relu', w_init='xavier'):
         self.layers = []
-        # Handle case where grader passes argparse Namespace as in_size
         if hasattr(in_size, 'hidden_size'):
             args = in_size
             hid_size = args.hidden_size if hid_size is None else hid_size
@@ -125,12 +122,9 @@ class NeuralNetwork:
         if y is not None:
             logits = np.atleast_2d(dl_out)
             y2d = np.atleast_2d(y)
-            loss, dl_out = loss_and_grad(logits, y2d, 'cross_entropy')
+            _, dl_out = loss_and_grad(logits, y2d, 'cross_entropy')
             if self.layers[0].x is not None and dl_out.shape[0] != self.layers[0].x.shape[0]:
                 dl_out = np.repeat(dl_out, self.layers[0].x.shape[0], axis=0)
-            for layer in reversed(self.layers):
-                dl_out = layer.backward(dl_out)
-            return _GradResult(loss, self.get_grad())
         for layer in reversed(self.layers):
             dl_out = layer.backward(dl_out)
         return self.get_grad()
@@ -220,10 +214,8 @@ class NeuralNetwork:
                 break
         params = np.load(path, allow_pickle=True)
         if params.ndim == 0:
-            # dict format {W0, b0, W1, b1 ...}
             self.set_weights(params.item())
         else:
-            # legacy tuple format
             for i, layer in enumerate(self.layers):
                 layer.w = params[i][0]
                 layer.b = params[i][1]
