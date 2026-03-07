@@ -1,15 +1,15 @@
 import sys, os
 sys.path.insert(0, "/autograder/source")
 sys.path.insert(0, "/autograder/source/src")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import numpy as np
 import argparse
 import json
 import wandb
 import matplotlib.pyplot as plt
-import seaborn as sns
+from keras.datasets import mnist, fashion_mnist
 from sklearn.metrics import classification_report, confusion_matrix, precision_recall_fscore_support
-from sklearn.datasets import fetch_openml
 from ann.neural_network import NeuralNetwork as MLP, loss_and_grad, optimizer
 
 
@@ -33,16 +33,11 @@ def parse_arguments(args=None):
 
 def load_test_data(data_s):
     if data_s == 'mnist':
-        dataset = fetch_openml('mnist_784', version=1, as_frame=False, parser='liac-arff')
+        (_, _), (x_test, y_test) = mnist.load_data()
     else:
-        dataset = fetch_openml('Fashion-MNIST', version=1, as_frame=False, parser='liac-arff')
-
-    X = dataset.data.astype('float32') / 255.0
-    y = dataset.target.astype(int)
-
-    # Use standard test split (last 10000 samples)
-    x_te = X[60000:]
-    y_te = np.eye(10)[y[60000:]]
+        (_, _), (x_test, y_test) = fashion_mnist.load_data()
+    x_te = x_test.reshape(-1, 784).astype('float32') / 255
+    y_te = np.eye(10)[y_test]
     return x_te, y_te
 
 
@@ -50,7 +45,6 @@ def load_model(args):
     wandb.init(project=args.wandb_project)
     with open(args.save_config) as f:
         cfg = json.load(f)
-
     x_te, y_te = load_test_data(args.dataset)
     model_loaded = MLP(
         cfg['Layers_dim'][0],
@@ -72,26 +66,28 @@ def evaluate_model(args, test_logits, y_te):
     te_prec, te_rec, te_f1, _ = precision_recall_fscore_support(
         test_true, test_pred, average='weighted', zero_division=0
     )
-
     print('\nTest Metrics:')
     report = classification_report(test_true, test_pred)
     print(report)
     print(f'test loss: {test_loss:.3f}, test_accuracy: {test_acc:.3f}, '
           f'value_f1: {te_f1:.3f}, test_precision: {te_prec:.3f}, test_recall: {te_rec:.3f}')
-
     wandb.log({
-        'Test_loss': test_loss,
-        'test_accuracy': test_acc,
-        'test_Precision': te_prec,
-        'test_Recall': te_rec,
-        'test_F1': te_f1,
+        'Test_loss': test_loss, 'test_accuracy': test_acc,
+        'test_Precision': te_prec, 'test_Recall': te_rec, 'test_F1': te_f1,
         'Classification_report': wandb.Table(columns=['report'], data=[[report]])
     })
-
-    # Confusion matrix  -- FIX: was unreachable due to misplaced comment breaking indentation
     cm = confusion_matrix(test_true, test_pred)
     plt.figure(figsize=(6, 5))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.imshow(cm, interpolation='nearest', cmap='Blues')
+    plt.colorbar()
+    ticks = range(cm.shape[0])
+    plt.xticks(ticks, ticks)
+    plt.yticks(ticks, ticks)
+    thresh = cm.max() / 2
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            plt.text(j, i, str(cm[i, j]), ha='center', va='center',
+                     color='white' if cm[i, j] > thresh else 'black')
     plt.title('Confusion Matrix')
     plt.xlabel('Predicted')
     plt.ylabel('True')
@@ -106,7 +102,7 @@ def main():
     args = parse_arguments()
     _, test_logits, _, y_te = load_model(args)
     evaluate_model(args, test_logits, y_te)
-    wandb.finish()  # FIX: was at module level (outside any function)
+    wandb.finish()
 
 
 if __name__ == '__main__':
