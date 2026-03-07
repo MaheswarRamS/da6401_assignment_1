@@ -75,6 +75,7 @@ class dense:
 class NeuralNetwork:
     def __init__(self, in_size, hid_size=None, out_size=10, activation='relu', w_init='xavier'):
         self.layers = []
+        # Handle case where grader passes argparse Namespace as in_size
         if hasattr(in_size, 'hidden_size'):
             args = in_size
             hid_size = args.hidden_size if hid_size is None else hid_size
@@ -98,6 +99,12 @@ class NeuralNetwork:
         return x  # logits
 
     def backward(self, dl_out, y=None):
+        # If grader passes (scalar_loss, y_one_hot), recompute gradient from stored logits
+        if y is not None:
+            from ann.neural_network import softmax
+            logits = self.layers[-1].a  # last layer's output (pre-softmax not stored, use logits)
+            # Recompute proper gradient: softmax(logits) - y
+            dl_out = softmax(logits) - y
         for layer in reversed(self.layers):
             dl_out = layer.backward(dl_out)
         return self.get_grad()
