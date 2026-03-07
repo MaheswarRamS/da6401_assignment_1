@@ -102,7 +102,6 @@ class NeuralNetwork:
             logits = np.atleast_2d(dl_out)
             y2d = np.atleast_2d(y)
             _, dl_out = loss_and_grad(logits, y2d, 'cross_entropy')
-            # Match batch dimension of stored activations
             if self.layers[0].x is not None and dl_out.shape[0] != self.layers[0].x.shape[0]:
                 dl_out = np.repeat(dl_out, self.layers[0].x.shape[0], axis=0)
         for layer in reversed(self.layers):
@@ -182,16 +181,15 @@ class NeuralNetwork:
                 layer.b = weight_dict[f"b{i}"].copy()
 
     def save(self, path='best_model.npy'):
-        params = [(layer.w, layer.b) for layer in self.layers]
-        np.save(path, np.array(params, dtype=object), allow_pickle=True)
-        return params
+        weights = self.get_weights()
+        np.save(path, weights, allow_pickle=True)
+        return weights
 
     def load(self, path):
         import os
-        # Try given path, then fallback locations
         for candidate in [path,
-                          os.path.join('/autograder/source', os.path.basename(path)),
                           os.path.join('/autograder/source', path),
+                          os.path.join('/autograder/source', os.path.basename(path)),
                           os.path.basename(path)]:
             if os.path.exists(candidate):
                 path = candidate
