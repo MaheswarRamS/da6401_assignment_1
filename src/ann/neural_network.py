@@ -98,12 +98,11 @@ class NeuralNetwork:
         return x  # logits
 
     def backward(self, dl_out, y=None):
-        # If grader passes (scalar_loss, y_one_hot), recompute gradient from stored logits
         if y is not None:
-            from ann.neural_network import softmax
-            logits = self.layers[-1].a  # last layer's output (pre-softmax not stored, use logits)
-            # Recompute proper gradient: softmax(logits) - y
-            dl_out = softmax(logits) - y
+            loss, dl_out = loss_and_grad(dl_out, y, 'cross_entropy')
+            for layer in reversed(self.layers):
+                dl_out = layer.backward(dl_out)
+            return loss, self.get_grad()
         for layer in reversed(self.layers):
             dl_out = layer.backward(dl_out)
         return self.get_grad()
@@ -181,15 +180,19 @@ class NeuralNetwork:
                 layer.b = weight_dict[f"b{i}"].copy()
 
     def save(self, path='best_model.npy'):
-        params = [(layer.w, layer.b) for layer in self.layers]
-        np.save(path, np.array(params, dtype=object), allow_pickle=True)
-        return params
+        weights = self.get_weights()
+        np.save(path, weights, allow_pickle=True)
+        return weights
 
     def load(self, path):
         params = np.load(path, allow_pickle=True)
-        for i, layer in enumerate(self.layers):
-            layer.w = params[i][0]
-            layer.b = params[i][1]
+        if params.ndim == 0:
+            d = params.item()
+            self.set_weights(d)
+        else:
+            for i, layer in enumerate(self.layers):
+                layer.w = params[i][0]
+                layer.b = params[i][1]
 
 # alias for Neural_network
 MLP = NeuralNetwork
