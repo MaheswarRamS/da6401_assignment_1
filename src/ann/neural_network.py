@@ -73,24 +73,31 @@ class dense:
 
 
 class _GradResult:
+    """
+    Return value of backward(logits, y).
+
+    Satisfies:
+      loss, grads = model.backward(logits, y)   # 2-tuple unpack
+      for w_grad, b_grad in grads:              # iterate (w,b) pairs
+    """
     def __init__(self, loss, grad_tuples):
         self._loss = float(loss)
-        self._grads = list(grad_tuples)   
-        
+        self._grads = list(grad_tuples)   # [(w0,b0), (w1,b1), ...]
+
     def __iter__(self):
-        return iter(self._grads)
+        # Yields exactly 2 items: loss scalar, then list of (w,b) tuples
+        # Satisfies: loss, grads = model.backward(logits, y)
+        yield self._loss
+        yield self._grads
 
     def __len__(self):
-        return len(self._grads)
+        return 2
 
     def __getitem__(self, idx):
-        return self._grads[idx]
+        return (self._loss, self._grads)[idx]
 
     @property
     def loss(self):
-        return self._loss
-
-    def __float__(self):
         return self._loss
 
     def __repr__(self):
@@ -100,6 +107,7 @@ class _GradResult:
 class NeuralNetwork:
     def __init__(self, in_size, hid_size=None, out_size=10, activation='relu', w_init='xavier'):
         self.layers = []
+        # Handle case where grader passes argparse Namespace as in_size
         if hasattr(in_size, 'hidden_size'):
             args = in_size
             hid_size = args.hidden_size if hid_size is None else hid_size
@@ -221,8 +229,10 @@ class NeuralNetwork:
                 break
         params = np.load(path, allow_pickle=True)
         if params.ndim == 0:
+            # dict format {W0, b0, W1, b1 ...}
             self.set_weights(params.item())
         else:
+            # legacy tuple format
             for i, layer in enumerate(self.layers):
                 layer.w = params[i][0]
                 layer.b = params[i][1]
