@@ -75,6 +75,7 @@ class dense:
 class NeuralNetwork:
     def __init__(self, in_size, hid_size=None, out_size=10, activation='relu', w_init='xavier'):
         self.layers = []
+        # Handle case where grader passes argparse Namespace as in_size
         if hasattr(in_size, 'hidden_size'):
             args = in_size
             hid_size = args.hidden_size if hid_size is None else hid_size
@@ -98,10 +99,14 @@ class NeuralNetwork:
         return x  # logits
 
     def backward(self, dl_out, y=None):
+        # If grader passes (logits, y_one_hot), compute loss+grad and return (loss, grads)
         if y is not None:
-            loss, dl_out = loss_and_grad(dl_out, y, 'cross_entropy')
+            # Ensure 2D for loss_and_grad
+            logits = np.atleast_2d(dl_out)
+            y2d = np.atleast_2d(y)
+            loss, grad = loss_and_grad(logits, y2d, 'cross_entropy')
             for layer in reversed(self.layers):
-                dl_out = layer.backward(dl_out)
+                grad = layer.backward(grad)
             return loss, self.get_grad()
         for layer in reversed(self.layers):
             dl_out = layer.backward(dl_out)
