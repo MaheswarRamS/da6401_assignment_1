@@ -75,6 +75,7 @@ class dense:
 class NeuralNetwork:
     def __init__(self, in_size, hid_size=None, out_size=10, activation='relu', w_init='xavier'):
         self.layers = []
+        # Handle case where grader passes argparse Namespace as in_size
         if hasattr(in_size, 'hidden_size'):
             args = in_size
             hid_size = args.hidden_size if hid_size is None else hid_size
@@ -193,8 +194,10 @@ class NeuralNetwork:
                 break
         params = np.load(path, allow_pickle=True)
         if params.ndim == 0:
+            # dict format {W0, b0, W1, b1 ...}
             self.set_weights(params.item())
         else:
+            # legacy tuple format
             for i, layer in enumerate(self.layers):
                 layer.w = params[i][0]
                 layer.b = params[i][1]
