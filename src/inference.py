@@ -9,7 +9,6 @@ import json
 import wandb
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from tensorflow import keras
 from sklearn.metrics import classification_report, confusion_matrix, precision_recall_fscore_support
 from ann.neural_network import NeuralNetwork as MLP, loss_and_grad, optimizer
 
