@@ -73,9 +73,11 @@ class dense:
 
 
 class NeuralNetwork:
-    def __init__(self, in_size, hid_size, out_size, activation='relu', w_init='xavier'):
+    def __init__(self, in_size, hid_size=None, out_size=10, activation='relu', w_init='xavier'):
         self.layers = []
-        if isinstance(hid_size, int):
+        if hid_size is None:
+            hid_size = [128]
+        elif isinstance(hid_size, int):
             hid_size = [hid_size]
         size = [in_size] + list(hid_size) + [out_size]
         for i in range(len(size) - 1):
