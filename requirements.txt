@@ -1,15 +1,5 @@
-# Core dependencies
-Name: numpy Version: 2.4.2
-Name: matplotlib Version: 3.10.8
-Name: seaborn Version: 0.13.2
-
-# For data loading
-Name: Keras Version: 2.20.0
-
-# Logging and experiment tracking
-Name: wandb Version: 0.25.0
-
-# For confusion matrix and metrics calculation
-Name: scikit-learn Version: 1.8.0
-
-
+numpy
+matplotlib
+seaborn
+scikit-learn
+wandb
