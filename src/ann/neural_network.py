@@ -97,7 +97,7 @@ class NeuralNetwork:
             x = layer.forward(x)
         return x  # logits
 
-    def backward(self, dl_out):
+    def backward(self, dl_out, y=None):
         for layer in reversed(self.layers):
             dl_out = layer.backward(dl_out)
         return self.get_grad()
