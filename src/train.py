@@ -4,18 +4,16 @@ import wandb
 import json
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_recall_fscore_support
-import tensorflow as tf
-from tensorflow import keras
+from keras.datasets import mnist, fashion_mnist
 from sklearn.metrics import classification_report
 from ann.neural_network import NeuralNetwork as MLP, loss_and_grad, optimizer
 
 
-
 def load_data(data_s):
     if data_s == 'mnist':
-        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+        (x_train, y_train), (x_test, y_test) = mnist.load_data()
     else:
-        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
+        (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
     x_train = x_train.reshape(-1, 784).astype('float32') / 255
     x_test = x_test.reshape(-1, 784).astype('float32') / 255
     y_train = np.eye(10)[y_train]
@@ -31,7 +29,7 @@ def parse_arguments():
     p.add_argument('-d', '--dataset', choices=['mnist', 'fashion_mnist'], required=True)
     p.add_argument('-e', '--epochs', type=int, required=True)
     p.add_argument('-b', '--batch_size', type=int, required=True)
-    p.add_argument('-l', '--loss', choices=['mse', 'cce','cross_etropy'], required=True)
+    p.add_argument('-l', '--loss', choices=['mse', 'cce', 'cross_entropy'], required=True)
     p.add_argument('-o', '--optimizer', choices=['sgd', 'momentum', 'nag', 'rmsprop'], required=True)
     p.add_argument('-lr', '--learning_rate', type=float, required=True)
     p.add_argument('-nhl', '--num_layers', type=int, required=True)
