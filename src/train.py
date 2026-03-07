@@ -7,7 +7,8 @@ import numpy as np
 import argparse
 import wandb
 import json
-from keras.datasets import mnist, fashion_mnist
+import tensorflow as tf
+from tensorflow import keras
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_recall_fscore_support, classification_report
 from ann.neural_network import NeuralNetwork as MLP, loss_and_grad, optimizer
@@ -15,9 +16,9 @@ from ann.neural_network import NeuralNetwork as MLP, loss_and_grad, optimizer
 
 def load_data(data_s):
     if data_s == 'mnist':
-        (x_train, y_train), (x_test, y_test) = mnist.load_data()
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
     else:
-        (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
+        (x_train, y_train), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
     x_train = x_train.reshape(-1, 784).astype('float32') / 255
     x_test  = x_test.reshape(-1, 784).astype('float32') / 255
     y_train = np.eye(10)[y_train]
