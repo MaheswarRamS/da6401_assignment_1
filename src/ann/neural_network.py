@@ -101,9 +101,12 @@ class NeuralNetwork:
         if y is not None:
             logits = np.atleast_2d(dl_out)
             y2d = np.atleast_2d(y)
-            _, dl_out = loss_and_grad(logits, y2d, 'cross_entropy')
+            loss, dl_out = loss_and_grad(logits, y2d, 'cross_entropy')
             if self.layers[0].x is not None and dl_out.shape[0] != self.layers[0].x.shape[0]:
                 dl_out = np.repeat(dl_out, self.layers[0].x.shape[0], axis=0)
+            for layer in reversed(self.layers):
+                dl_out = layer.backward(dl_out)
+            return loss, self.get_grad()
         for layer in reversed(self.layers):
             dl_out = layer.backward(dl_out)
         return self.get_grad()
@@ -196,8 +199,10 @@ class NeuralNetwork:
                 break
         params = np.load(path, allow_pickle=True)
         if params.ndim == 0:
+            # dict format {W0, b0, W1, b1 ...}
             self.set_weights(params.item())
         else:
+            # legacy tuple format
             for i, layer in enumerate(self.layers):
                 layer.w = params[i][0]
                 layer.b = params[i][1]
