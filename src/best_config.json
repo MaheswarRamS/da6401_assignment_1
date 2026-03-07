@@ -1,15 +1,15 @@
 {
   "dataset": "mnist",
-  "epochs": 50,
-  "batch_size": 64,
+  "epochs": 100,
+  "batch_size": 32,
   "loss": "cross_entropy",
   "optimizer": "rmsprop",
-  "learning_rate": 0.001,
+  "learning_rate": 0.0005,
   "num_layers": 3,
   "hidden_size": [
+    512,
     256,
-    128,
-    64
+    128
   ],
   "activation": "relu",
   "weight_init": "xavier",
@@ -18,9 +18,9 @@
   "save_config": "src/best_config.json",
   "Layers_dim": [
     784,
+    512,
     256,
     128,
-    64,
     10
   ]
 }
